@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Face Recognition</title>
+    <style>
+        #video-stream {
+            width: 80%;
+            margin: auto;
+            display: block;
+        }
+        .recognized-face {
+            position: absolute;
+            border: 2px solid green;
+            color: white;
+            background-color: green;
+            padding: 2px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Face Recognition</h1>
+    
+    <!-- Display the live video -->
+    <img id="video-stream" src="{{ url_for('video') }}" alt="Live Video">
+    
+    <!-- Div for displaying recognized faces -->
+    <div id="faces-container" style="position: relative;"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.1/socket.io.min.js"></script>
+    <script>
+        // Initialize WebSocket connection
+        const socket = io.connect();
+
+        // Listen for face data
+        socket.on('face_data', function(data) {
+            const faceContainer = document.getElementById('faces-container');
+            
+            // Create a div for the recognized face
+            const faceDiv = document.createElement('div');
+            faceDiv.classList.add('recognized-face');
+            faceDiv.innerText = data.name;
+            
+            // Set the position of the face div based on the bounding box
+            const top = data.location[0] * 0.25;
+            const right = data.location[1] * 0.25;
+            const bottom = data.location[2] * 0.25;
+            const left = data.location[3] * 0.25;
+            
+            faceDiv.style.top = top + 'px';
+            faceDiv.style.left = left + 'px';
+            faceDiv.style.width = (right - left) + 'px';
+            faceDiv.style.height = (bottom - top) + 'px';
+
+            faceContainer.appendChild(faceDiv);
+        });
+    </script>
+</body>
+</html>
